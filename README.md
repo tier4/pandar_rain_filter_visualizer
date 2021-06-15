@@ -73,11 +73,12 @@ Command-line Interface for Pandar rain filter visualizing tool. The tool expects
             ├─0.png
             ├─1.png
             ├─ ...
+```
 
 ## Usage
 
 ```sh
-rosrun pandar_rain_filter_visualizer pandar_rain_filter_visualizer _file_path:=[data file path]
+rosrun pandar_rain_filter_visualizer pandar_rain_filter_visualizer _file_path:=[data file path] _train_val_selection:=[train/val]
 ```
 
 # Parameters and options
@@ -85,6 +86,5 @@ rosrun pandar_rain_filter_visualizer pandar_rain_filter_visualizer _file_path:=[
  |Param|Default Value|Description|
  |---|---|---|
  |`file_path`|None|Path of folder containing labels and range images|
-
-
+ |`train_val_selection`|None|Training or validation data|
 

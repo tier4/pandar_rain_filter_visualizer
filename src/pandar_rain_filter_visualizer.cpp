@@ -151,16 +151,23 @@ int main(int argc, char **argv)
 
   std::string file_path;
   std::stringstream label_path_name;
-  std::string train_val_selection = "train";
+  std::string train_val_selection;
 
   private_node_handle.param<std::string>("file_path", file_path, "");
   ROS_INFO("[%s] file_path: %s", ros::this_node::getName().c_str(), file_path.c_str());
 
+  private_node_handle.param<std::string>("train_val_selection", train_val_selection, "");
+  ROS_INFO("[%s] train_val_selection: %s", ros::this_node::getName().c_str(), train_val_selection.c_str());
 
   if (!file_exists(file_path))
   {
     ROS_WARN("[%s] file_path: %s does not exist. Terminating.", ros::this_node::getName().c_str(), file_path.c_str());
     return 1;
+  }
+
+  if (train_val_selection.empty()){
+    ROS_WARN("[%s] train_val_selection: %s is empty. Terminating.", ros::this_node::getName().c_str(), train_val_selection.c_str());
+    return 1;    
   }
 
   // publishers
