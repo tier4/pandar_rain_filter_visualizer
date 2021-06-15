@@ -1,53 +1,19 @@
-#include <fstream>
-#include <sstream>
-#include <istream>
-#include <ctime>
-#include <chrono>
-#include <algorithm>
-#include <map>
-#include <thread>
-
-#include <boost/foreach.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/c_local_time_adjustor.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lambda/bind.hpp>
 #include <ros/ros.h>
 
-#include <rosbag/bag.h>
-#include <rosbag/view.h>
-
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/CompressedImage.h>
-#include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <nav_msgs/Odometry.h>
 #include <pandar_pointcloud/point_types.hpp>
 
-#include <pcl/octree/octree_search.h>
-#include <pcl/search/search.h>
-#include <pcl/segmentation/segment_differences.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
 #include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/crop_box.h>
-
 #include <pcl/common/common.h>
-#include <pcl/ModelCoefficients.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/segmentation/sac_segmentation.h>
 
 #include <pcl_ros/point_cloud.h>
-#include <pcl_ros/transforms.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <pcl/visualization/pcl_visualizer.h>
 
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/approximate_voxel_grid.h>
-#include <pcl/kdtree/kdtree_flann.h>
 #include<sstream>
 #include <algorithm>
 #include "opencv2/highgui/highgui.hpp"

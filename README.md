@@ -1,28 +1,10 @@
-# Pandar Rain Filter
+# Pandar Rain Filter Visualizer
 
-Command-line Interface for Pandar rain filtering tool. The tool expects a bag file containing pointclouds from `/pandar_points_ex` topic.
-
-## Usage
-
-```sh
-rosrun pandar_rain_filter rosbag_processor_pandar_rain_filter _file_path:=[bag file path] _output_path:=[output_path] _no_rain_pcd_path:=[no_rain_pcd] _train_val_selection:=[train/val]
-```
-
-# Parameters and options
-
- |Param|Default Value|Description|
- |---|---|---|
- |`file_path`|None|Path of bag file to be processed|
- |`output_path`|None|Path where the range images and labels will be stored|
- |`no_rain_pcd_path`|None|Path of the no rain point cloud pcd|
- |`train_val_selection`|None|Training or validation data|
-
-
-The data will be stored in `output_path` with the following structure:
+Command-line Interface for Pandar rain filter visualizing tool. The tool expects file path containing the rain labels and range images stored in the following structure:
 
 ```
-└── output_path
-    ├─particle_labels
+└── file_path
+    ├─particle_labels
     │   ├─train
     │   │ ├─first
     │   │ │ ├─0.png
@@ -91,3 +73,18 @@ The data will be stored in `output_path` with the following structure:
             ├─0.png
             ├─1.png
             ├─ ...
+
+## Usage
+
+```sh
+rosrun pandar_rain_filter_visualizer pandar_rain_filter_visualizer _file_path:=[data file path]
+```
+
+# Parameters and options
+
+ |Param|Default Value|Description|
+ |---|---|---|
+ |`file_path`|None|Path of folder containing labels and range images|
+
+
+
