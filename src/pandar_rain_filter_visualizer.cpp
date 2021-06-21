@@ -94,31 +94,31 @@ void reconstruct_point_cloud(pcl::PointCloud<PointXYZIR>::Ptr original_pt_cloud,
 
 }
 
-void process_range_images(const std::string file_path, int ind){
+void process_range_images(const std::string particle_label_path, const std::string point_cloud_images_path ,const std::string range_images_path, int ind){
     std::stringstream first_range_name, first_intensity_name, first_ret_type_name;
     std::stringstream last_range_name, last_intensity_name, last_ret_type_name, first_label_name, last_label_name, point_cloud_first_name, point_cloud_last_name; 
-    std::string ss1 = "/range_images/first_depth/";
-    std::string ss2 = "/range_images/first_intensity/";
-    std::string ss3 = "/range_images/first_return_type/"; 
-    std::string ss4 = "/range_images/last_depth/";      
-    std::string ss5 = "/range_images/last_intensity/";      
-    std::string ss6 = "/range_images/last_return_type/"; 
-    std::string ss7 = "/particle_labels/first/";    
-    std::string ss8 = "/particle_labels/last/";    
-    std::string ss9 = "/point_cloud_images/point_cloud_first_img_";   
-    std::string ss10 = "/point_cloud_images/point_cloud_last_img_";   
+    std::string ss1 = "/first_depth/";
+    std::string ss2 = "/first_intensity/";
+    std::string ss3 = "/first_return_type/"; 
+    std::string ss4 = "/last_depth/";      
+    std::string ss5 = "/last_intensity/";      
+    std::string ss6 = "/last_return_type/"; 
+    std::string ss7 = "/first/";    
+    std::string ss8 = "/last/";    
+    std::string ss9 = "/point_cloud_first_img_";   
+    std::string ss10 = "/point_cloud_last_img_";   
     std::string type1 = ".png";       
     std::string type2 = ".exr";    
-    first_range_name<<file_path<<ss1<<(ind)<<type1;
-    first_intensity_name<<file_path<<ss2<<(ind)<<type1;
-    first_ret_type_name<<file_path<<ss3<<(ind)<<type1;
-    last_range_name<<file_path<<ss4<<(ind)<<type1;
-    last_intensity_name<<file_path<<ss5<<(ind)<<type1;
-    last_ret_type_name<<file_path<<ss6<<(ind)<<type1;
-    first_label_name<<file_path<<ss7<<(ind)<<type1;    
-    last_label_name<<file_path<<ss8<<(ind)<<type1; 
-    point_cloud_first_name<<file_path<<ss9<<(ind)<<type2;
-    point_cloud_last_name<<file_path<<ss10<<(ind)<<type2;
+    first_range_name<<range_images_path<<ss1<<(ind)<<type1;
+    first_intensity_name<<range_images_path<<ss2<<(ind)<<type1;
+    first_ret_type_name<<range_images_path<<ss3<<(ind)<<type1;
+    last_range_name<<range_images_path<<ss4<<(ind)<<type1;
+    last_intensity_name<<range_images_path<<ss5<<(ind)<<type1;
+    last_ret_type_name<<range_images_path<<ss6<<(ind)<<type1;
+    first_label_name<<particle_label_path<<ss7<<(ind)<<type1;    
+    last_label_name<<particle_label_path<<ss8<<(ind)<<type1; 
+    point_cloud_first_name<<point_cloud_images_path<<ss9<<(ind)<<type2;
+    point_cloud_last_name<<point_cloud_images_path<<ss10<<(ind)<<type2;
 
     //Reading the range images
     cv::Mat first_range_img = cv::imread(first_range_name.str(), cv::IMREAD_UNCHANGED);
@@ -149,17 +149,38 @@ int main(int argc, char **argv)
 
   ros::NodeHandle private_node_handle("~");
 
-  std::string file_path;
+  std::string particle_labels_path;
+  std::string point_cloud_images_path;
+  std::string range_images_path;
   std::stringstream label_path_name;
-  private_node_handle.param<std::string>("file_path", file_path, "");
-  ROS_INFO("[%s] file_path: %s", ros::this_node::getName().c_str(), file_path.c_str());
+  private_node_handle.param<std::string>("particle_labels_path", particle_labels_path, "");
+  ROS_INFO("[%s] particle_labels_path: %s", ros::this_node::getName().c_str(), particle_labels_path.c_str());
 
-  if (!file_exists(file_path))
+  if (!file_exists(particle_labels_path))
   {
-    ROS_WARN("[%s] file_path: %s does not exist. Terminating.", ros::this_node::getName().c_str(), file_path.c_str());
+    ROS_WARN("[%s] particle_labels_path: %s does not exist. Terminating.", ros::this_node::getName().c_str(), particle_labels_path.c_str());
     return 1;
   }
 
+
+  private_node_handle.param<std::string>("point_cloud_images_path", point_cloud_images_path, "");
+  ROS_INFO("[%s] point_cloud_images_path: %s", ros::this_node::getName().c_str(), point_cloud_images_path.c_str());
+
+  if (!file_exists(point_cloud_images_path))
+  {
+    ROS_WARN("[%s] point_cloud_images_path: %s does not exist. Terminating.", ros::this_node::getName().c_str(), point_cloud_images_path.c_str());
+    return 1;
+  }
+
+
+  private_node_handle.param<std::string>("range_images_path", range_images_path, "");
+  ROS_INFO("[%s] range_images_path: %s", ros::this_node::getName().c_str(), range_images_path.c_str());
+
+  if (!file_exists(range_images_path))
+  {
+    ROS_WARN("[%s] range_images_path: %s does not exist. Terminating.", ros::this_node::getName().c_str(), range_images_path.c_str());
+    return 1;
+  }
 
 
   // publishers
@@ -169,8 +190,8 @@ int main(int argc, char **argv)
 
   std::cout << "Reading range images and rain labels..." << std::endl;
   // Count number of range images & labels
-  std::string label_path = "/particle_labels/first/"; 
-  label_path_name<<file_path<<label_path;
+  std::string label_first_path = "/first/"; 
+  label_path_name<<particle_labels_path<<label_first_path;
   boost::filesystem::path the_path(label_path_name.str());
   int file_cnt = std::count_if(
         boost::filesystem::directory_iterator(the_path),
@@ -182,7 +203,7 @@ int main(int argc, char **argv)
   size_t total_messages = file_cnt;
 
   for (int cnt = 0; cnt < total_messages; cnt++){
-    process_range_images(file_path, cnt);
+    process_range_images(particle_labels_path, point_cloud_images_path ,range_images_path ,  cnt);
     std::cout << "\rProgress: (" << cnt << " / " << total_messages << ") " << std::endl;
  
   }
