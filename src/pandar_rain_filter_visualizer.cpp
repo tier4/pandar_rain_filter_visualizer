@@ -94,17 +94,17 @@ void reconstruct_point_cloud(pcl::PointCloud<PointXYZIR>::Ptr original_pt_cloud,
 
 }
 
-void process_range_images(const std::string file_path, const std::string train_val_selection, int ind){
+void process_range_images(const std::string file_path, int ind){
     std::stringstream first_range_name, first_intensity_name, first_ret_type_name;
     std::stringstream last_range_name, last_intensity_name, last_ret_type_name, first_label_name, last_label_name, point_cloud_first_name, point_cloud_last_name; 
-    std::string ss1 = "/range_images/" + train_val_selection + "/first_depth/";
-    std::string ss2 = "/range_images/" + train_val_selection + "/first_intensity/";
-    std::string ss3 = "/range_images/" + train_val_selection + "/first_return_type/"; 
-    std::string ss4 = "/range_images/" + train_val_selection + "/last_depth/";      
-    std::string ss5 = "/range_images/" + train_val_selection + "/last_intensity/";      
-    std::string ss6 = "/range_images/" + train_val_selection + "/last_return_type/"; 
-    std::string ss7 = "/particle_labels/" + train_val_selection + "/first/";    
-    std::string ss8 = "/particle_labels/" + train_val_selection + "/last/";    
+    std::string ss1 = "/range_images/first_depth/";
+    std::string ss2 = "/range_images/first_intensity/";
+    std::string ss3 = "/range_images/first_return_type/"; 
+    std::string ss4 = "/range_images/last_depth/";      
+    std::string ss5 = "/range_images/last_intensity/";      
+    std::string ss6 = "/range_images/last_return_type/"; 
+    std::string ss7 = "/particle_labels/first/";    
+    std::string ss8 = "/particle_labels/last/";    
     std::string ss9 = "/point_cloud_images/point_cloud_first_img_";   
     std::string ss10 = "/point_cloud_images/point_cloud_last_img_";   
     std::string type1 = ".png";       
@@ -151,13 +151,8 @@ int main(int argc, char **argv)
 
   std::string file_path;
   std::stringstream label_path_name;
-  std::string train_val_selection;
-
   private_node_handle.param<std::string>("file_path", file_path, "");
   ROS_INFO("[%s] file_path: %s", ros::this_node::getName().c_str(), file_path.c_str());
-
-  private_node_handle.param<std::string>("train_val_selection", train_val_selection, "");
-  ROS_INFO("[%s] train_val_selection: %s", ros::this_node::getName().c_str(), train_val_selection.c_str());
 
   if (!file_exists(file_path))
   {
@@ -165,10 +160,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  if (train_val_selection.empty()){
-    ROS_WARN("[%s] train_val_selection: %s is empty. Terminating.", ros::this_node::getName().c_str(), train_val_selection.c_str());
-    return 1;    
-  }
+
 
   // publishers
   original_pcl_pub = private_node_handle.advertise<sensor_msgs::PointCloud2>("/original_pt_cloud", 10);
@@ -177,7 +169,7 @@ int main(int argc, char **argv)
 
   std::cout << "Reading range images and rain labels..." << std::endl;
   // Count number of range images & labels
-  std::string label_path = "/particle_labels/" + train_val_selection + "/first/"; 
+  std::string label_path = "/particle_labels/first/"; 
   label_path_name<<file_path<<label_path;
   boost::filesystem::path the_path(label_path_name.str());
   int file_cnt = std::count_if(
@@ -190,7 +182,7 @@ int main(int argc, char **argv)
   size_t total_messages = file_cnt;
 
   for (int cnt = 0; cnt < total_messages; cnt++){
-    process_range_images(file_path, train_val_selection, cnt);
+    process_range_images(file_path, cnt);
     std::cout << "\rProgress: (" << cnt << " / " << total_messages << ") " << std::endl;
  
   }
