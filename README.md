@@ -48,12 +48,32 @@ range_images
   ├─ ...
 
 ```
-
 ## Usage
 
 ```sh
 rosrun pandar_rain_filter_visualizer pandar_rain_filter_visualizer _particle_labels_path:=[particle labels path]  _point_cloud_images_path:=[point cloud images path]  _range_images_path:=[range images path]
 ```
+Open rviz in a new terminal with the configuration file
+```sh
+rviz rviz -d visualizer.rviz
+```
+
+Once the program is running, the following screen appears
+![Alt text](images/usage1.png?raw=true "Title")
+
+Enter the frame number you want to skip to, then the following screen appears
+![Alt text](images/usage2.png?raw=true "Title")
+
+You can choose either to publish point clouds or step through them manually.
+
+
+![Alt text](images/usage3.png?raw=true "Title")
+
+Use Right and Left arrow keys for stepping through frames
+
+Press CTRL+C & ENTER to stop the program.
+
+<u>**NOTE:**</u> The terminal window should be in focus for keyboard navigation to work.
 
 # Parameters and options
 
@@ -63,3 +83,7 @@ rosrun pandar_rain_filter_visualizer pandar_rain_filter_visualizer _particle_lab
  |`point_cloud_images_path`|None|Path of folder containing point cloud images|
  |`range_images_path`|None|Path of folder containing range images|
 
+
+# Dependencies
+
+Install `ncurses` for keyboard inputs: `sudo apt-get install libncurses5-dev`

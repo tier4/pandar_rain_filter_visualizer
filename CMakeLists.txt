@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Qt5Core REQUIRED)
+find_package(Curses REQUIRED)
 
 catkin_package(
         DEPENDS OpenCV
@@ -38,13 +39,15 @@ include_directories(
 )   
         
 add_executable(pandar_rain_filter_visualizer
-        src/pandar_rain_filter_visualizer.cpp)           
+        src/pandar_rain_filter_visualizer.cpp)         
 
 target_link_libraries(pandar_rain_filter_visualizer PRIVATE
         ${catkin_LIBRARIES}
         ${PCL_LIBRARIES}
         ${OpenCV_LIBRARIES}
+	${CURSES_LIBRARIES}
 )
+
 ############
 install(TARGETS
         pandar_rain_filter_visualizer

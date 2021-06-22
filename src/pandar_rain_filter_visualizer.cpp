@@ -17,7 +17,11 @@
 #include<sstream>
 #include <algorithm>
 #include "opencv2/highgui/highgui.hpp"
+#include <curses.h>
 
+#ifndef CTRL
+#define CTRL(c) ((c) & 037)
+#endif
 
 typedef pcl::PointXYZI PointT;
 typedef pandar_pointcloud::PointXYZIR PointXYZIR;
@@ -148,7 +152,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "pandar_rain_filter_visualizer");
 
   ros::NodeHandle private_node_handle("~");
-
+  ros::Rate rate(10); 
   std::string particle_labels_path;
   std::string point_cloud_images_path;
   std::string range_images_path;
@@ -184,9 +188,9 @@ int main(int argc, char **argv)
 
 
   // publishers
-  original_pcl_pub = private_node_handle.advertise<sensor_msgs::PointCloud2>("/original_pt_cloud", 10);
-  noise_pcl_pub = private_node_handle.advertise<sensor_msgs::PointCloud2>("/noise_pt_cloud", 10);
-  non_noise_pcl_pub = private_node_handle.advertise<sensor_msgs::PointCloud2>("/non_noise_pt_cloud", 10);
+  original_pcl_pub = private_node_handle.advertise<sensor_msgs::PointCloud2>("/original_pt_cloud", 1);
+  noise_pcl_pub = private_node_handle.advertise<sensor_msgs::PointCloud2>("/noise_pt_cloud", 1);
+  non_noise_pcl_pub = private_node_handle.advertise<sensor_msgs::PointCloud2>("/non_noise_pt_cloud", 1);
 
   std::cout << "Reading range images and rain labels..." << std::endl;
   // Count number of range images & labels
@@ -201,13 +205,55 @@ int main(int argc, char **argv)
   std::cout << "There are in total " << file_cnt << " range images & labels! "<< std::endl;
   size_t messages = 0;
   size_t total_messages = file_cnt;
-
-  for (int cnt = 0; cnt < total_messages; cnt++){
-    process_range_images(particle_labels_path, point_cloud_images_path ,range_images_path ,  cnt);
-    std::cout << "\rProgress: (" << cnt << " / " << total_messages << ") " << std::endl;
- 
+  int input = 0;
+  while (true) {
+    std::cout << "Enter a value less than " << file_cnt << " to skip to that frame: ";
+    std::cin >> input;
+    if ( input >= 0 && input < file_cnt){
+      std::cout << "Skipping to: " << input << std::endl;
+      break;
+    }
   }
+  int option;
+  std::cout << "Options:\n  1. Publish pointclouds at 10 hz\n  2. Step through frames manually\n\nEnter 1 or 2: ";
+  std::cin >> option;
+  if (option == 1){
+    std::cout << "Publishing at 10hz on these topics:\n   /original_pt_cloud\n   /noise_pt_cloud\n   /non_noise_pt_cloud\n" << std::endl;
+    for (int cnt = input; cnt < total_messages; cnt++){
+      process_range_images(particle_labels_path, point_cloud_images_path ,range_images_path , cnt);
+      //std::cout << "\rProgress: (" << cnt << " / " << total_messages << ") " << std::endl;
+      rate.sleep(); //publish at 10 hz
+    }
+  }
+  else if (option == 2){
+    int ch;
 
-  std::cout << "Range and Label images generated! " << std::endl;
+    initscr();
+    raw();
+    keypad(stdscr, TRUE);
+    noecho();
+    printw("\nPublishing point clouds on these topics:\n   /original_pt_cloud\n   /noise_pt_cloud\n   /non_noise_pt_cloud\n");
+    printw("\n\nFor stepping through frames \nplease use Keyboard arrow keys:\n   Left arrow: to go back\n   Right arrow: to go forward\n   CTRL+C & ENTER: to quit\n\n");
+    while (((ch = getch()) != '#') && ros::ok() && (input < total_messages - 1)) {
+        switch(ch) {
+            case KEY_LEFT:
+              input--;
+              printw("Stepping backward \n");
+              process_range_images(particle_labels_path, point_cloud_images_path ,range_images_path ,  input);
+              break;
+
+            case KEY_RIGHT:
+              input++;
+              printw("Stepping forward \n");
+              process_range_images(particle_labels_path, point_cloud_images_path ,range_images_path ,  input);
+              break;
+            case CTRL('c'):
+              printw("Exiting program!\n");
+              ros::shutdown();
+              break;
+        }
+    }
+    endwin();    
+  }
   return 0;
 }
